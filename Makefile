@@ -4,7 +4,7 @@ example: example.o
 	gcc example.o -o example -Wall -O2
 
 example.o: example.c
-	gcc -c -02 -Wall example.c example.o
+	gcc -c -O2 -Wall example.c -o example.o
 
 arcfour: arcfour.o
 	gcc -D_GNU_SOURCE arcfour.o -o arcfour.so -fPIC -shared -ldl
