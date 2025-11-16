@@ -14,9 +14,9 @@ void printbin(int8 *input, const int16 size)
 
     for (i = size, p = input; i; i--, p++)
     {
-        if (!((i + 1) % 2))
+        if (!(i % 2))
             printf(" ");
-        printf("%02X ", *p);
+        printf("%02X", *p);
     }
     printf("\n");
     return;
@@ -24,11 +24,14 @@ void printbin(int8 *input, const int16 size)
 
 int main(void)
 {
-    struct Arcfour *rc4;
+    // struct Arcfour *rc4;
     int16 skey, stext;
     int8 *key, *from, *encrypted, *decrypted;
 
     key = from = encrypted = decrypted = 0;
+    from = key;
+
+    skey = stext = 0;
 
     key = (int8 *)"tomatoes";
     skey = strlen((char *)key);
