@@ -24,7 +24,7 @@ void printbin(int8 *input, const int16 size)
 
 int main(void)
 {
-    // struct Arcfour *rc4;
+    Arcfour *rc4;
     int16 skey, stext;
     int8 *key, *from, *encrypted, *decrypted;
 
@@ -40,13 +40,17 @@ int main(void)
     printf("Initializing encryption...");
     F;
 
-    // rc4 = rc4init((int8 *)key, skey);
+    rc4 = rc4init(key, skey);
     printf("done\n");
 
     printf("'%s'\n ->", from);
-    // encrypted = rc4encrypt((int8 *)from, stext);
+    encrypted = rc4encrypt(rc4, from, stext);
+    printbin(encrypted, stext);
+    rc4uninit(rc4);
 
-    printbin((int8 *)key, skey);
+    rc4 = rc4init(key, skey);
+    decrypted = rc4decrypt(rc4, encrypted, stext);
+    printf("\n'%s'\n ->", decrypted);
 
     return 0;
 }
