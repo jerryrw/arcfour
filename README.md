@@ -1,4 +1,4 @@
-# RC4 librabry for MacOS
+# RC4 library for MacOS
 
 An RC4 encryption dynamic library.
 
