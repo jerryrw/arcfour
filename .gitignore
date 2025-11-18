@@ -54,3 +54,6 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+#the executable file
+example
