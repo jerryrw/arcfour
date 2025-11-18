@@ -1,3 +1,9 @@
+// developer docs for MacOS shared libraries:
+// https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/DynamicLibraryDesignGuidelines.html
+//
+// Helpful article:
+// https://yrom.net/blog/2023/04/19/how-to-explicitly-control-exported-symbols-of-dyamic-shared-libraries/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -6,8 +12,9 @@
 #include <errno.h>
 
 // #define EXPORT __atribute__((visibility("default")))
-// MacOS doesnt use the above
-#define rc4decrypt(p, x, y) rc4encrypt(p, x, y)
+// doing this differently using an external file for MacOS
+
+#define rc4decrypt(p, x, y) rc4encrypt(p, x, y) // decryption is the same as encrypting
 #define rc4uninit(x) free(x)
 
 // it is recomended to skip the first 2048 bits of the stream for statistical purposes
