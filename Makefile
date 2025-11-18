@@ -8,9 +8,12 @@ example.o: example.c
 
 arcfour: arcfour.o
 # Linux shared library
+# uncomment this next line for Linux leave comented for macOS
 #	gcc -D_GNU_SOURCE arcfour.o -o arcfour.so -fPIC -shared -ldl
+
 # macOS dynamic library
-	gcc -dynamiclib arcfour.o -o libarcfour.dylib 
+# uncoment this next line for macOS leave commented for Linux
+	gcc -dynamiclib -exported_symbols_list libapp.exp arcfour.o -o libarcfour.dylib 
 
 arcfour.o: arcfour.c
 	gcc -c -O2 -Wall arcfour.c

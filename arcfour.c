@@ -5,7 +5,7 @@ Arcfour *rc4init(int8 *key, int16 size)
     int16 x;
     int8 temp1, temp2;
     Arcfour *p;
-    int32 n;
+    int32 n; // counter for whitewashing
 
     p = malloc(sizeof(struct s_arcfour));
     if (p == NULL)

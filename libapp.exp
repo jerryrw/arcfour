@@ -1,0 +1,4 @@
+# Exported following symbols from the shared library
+
+_rc4init
+_rc4encrypt
