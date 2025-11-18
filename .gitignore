@@ -57,3 +57,4 @@ dkms.conf
 
 #the executable file
 example
+.vscode/
