@@ -8,6 +8,10 @@
 // #define EXPORT __atribute__((visibility("default")))
 #define rc4decrypt(p, x, y) rc4encrypt(p, x, y)
 #define rc4uninit(x) free(x)
+#define MS 500
+#define rc4witewash(x, y)                \
+    for (x = 0; x < (MS * 1000000); x++) \
+        (volatile int8) rc4byte(y);
 
 typedef unsigned char int8;
 typedef unsigned short int int16;

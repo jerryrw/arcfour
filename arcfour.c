@@ -4,8 +4,8 @@ Arcfour *rc4init(int8 *key, int16 size)
 {
     int16 x;
     int8 temp1, temp2;
-
     Arcfour *p;
+    int32 n;
 
     p = malloc(sizeof(struct s_arcfour));
     if (p == NULL)
@@ -39,7 +39,7 @@ Arcfour *rc4init(int8 *key, int16 size)
     }
     // prep for the actual encryption function
     p->i = p->j = 0;
-
+    rc4witewash(n, p);
     return p;
 }
 
