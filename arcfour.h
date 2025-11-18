@@ -6,12 +6,14 @@
 #include <errno.h>
 
 // #define EXPORT __atribute__((visibility("default")))
+// MacOS doesnt use the above
 #define rc4decrypt(p, x, y) rc4encrypt(p, x, y)
 #define rc4uninit(x) free(x)
-#define MS 500
-#define rc4witewash(x, y)                \
-    for (x = 0; x < (MS * 1000000); x++) \
-        (volatile int8) rc4byte(y);
+
+// it is recomended to skip the first 2048 bits of the stream for statistical purposes
+#define rc4witewash(x, y)      \
+    for (x = 0; x < 2049; x++) \
+        (volatile int8) rc4byte(y); // explicitly tell compiler to not optimize
 
 typedef unsigned char int8;
 typedef unsigned short int int16;

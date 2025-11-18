@@ -1,9 +1,9 @@
 
 #include "arcfour.h"
 
-#define F fflush(stdout);
+#define FLUSH fflush(stdout);
 
-int main(void);
+// int main(void);
 
 void printbin(int8 *input, const int16 size)
 {
@@ -24,33 +24,50 @@ void printbin(int8 *input, const int16 size)
 
 int main(void)
 {
-    Arcfour *rc4;
-    int16 skey, stext;
-    int8 *key, *from, *encrypted, *decrypted;
+    Arcfour *rc4context;
+    int16 keysize, textsize;
+    int8 *key, *cleartext, *encrypted, *decrypted;
 
-    key = from = encrypted = decrypted = 0;
-    from = key;
+    // zero out the pointers to initial values stops compiler warnings
+    key = cleartext = encrypted = decrypted = 0;
+    cleartext = key;
+    keysize = textsize = 0;
 
-    skey = stext = 0;
-
+    // set up the key
     key = (int8 *)"tomatoes";
-    skey = strlen((char *)key);
-    from = (int8 *)"Shall I compare thee to a summer's day?";
-    stext = strlen((char *)from);
-    printf("Initializing encryption...");
-    F;
+    keysize = strlen((char *)key);
+    // set up sample plaintext input
+    cleartext = (int8 *)"Shall I compare thee to a summer's day?";
+    textsize = strlen((char *)cleartext);
 
-    rc4 = rc4init(key, skey);
+    printf("Initializing encryption...");
+    FLUSH;
+    rc4context = rc4init(key, keysize); // sets up the context with the key
     printf("done\n");
 
-    printf("'%s'\n ->", from);
-    encrypted = rc4encrypt(rc4, from, stext);
-    printbin(encrypted, stext);
-    rc4uninit(rc4);
+    printf("Plaintext ->");
+    FLUSH;
+    printf("'%s'\n", cleartext);
 
-    rc4 = rc4init(key, skey);
-    decrypted = rc4decrypt(rc4, encrypted, stext);
-    printf("\n'%s'\n ->", decrypted);
+    printf("Encrypting...");
+    FLUSH;
+    encrypted = rc4encrypt(rc4context, cleartext, textsize); // the actual encryption call
+    printf("done\nCiphertext->");
+    FLUSH;
+    printbin(encrypted, textsize);
+
+    rc4uninit(rc4context); // reset the context to be able to decrypt
+
+    printf("Initializing decryption...");
+    FLUSH;
+    rc4context = rc4init(key, keysize); // re-initialize the context for decryption
+    printf("done\n");
+
+    printf("Decrypting...");
+    FLUSH;
+    decrypted = rc4decrypt(rc4context, encrypted, textsize);
+    printf("done\n");
+    printf("'%s'\n", decrypted);
 
     return 0;
 }
