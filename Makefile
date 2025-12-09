@@ -1,20 +1,19 @@
-all: arcfour example
+all: test_nist_arcfour
 
-example: example.o
-	gcc example.o -o example -Wall -O2 -L./ -larcfour
+#example: example.o
+#	gcc example.o -o example -Wall -O2 -L./ -larcfour
 
-example.o: example.c
-	gcc -c -O2 -Wall example.c -o example.o
+#example.o: example.c
+#	gcc -c -O2 -Waxll example.c -o example.o
 
-arcfour: arcfour.o
-# Linux shared library - uncomment this next line for Linux leave comented for macOS
-#	gcc -D_GNU_SOURCE arcfour.o -o arcfour.so -fPIC -shared -ldl
+test_nist_arcfour: test_nist_arcfour.o arcfour.o
+	gcc test_nist_arcfour.o arcfour.o -o test_nist_arcfour -Wall -O2
 
-# macOS dynamic library- uncoment this next line for macOS leave commented for Linux
-	gcc -dynamiclib -exported_symbols_list libapp.exp arcfour.o -o libarcfour.dylib 
+test_nist_arcfour.o: test_nist_arcfour.c
+	gcc -c -O2 -Wall test_nist_arcfour.c
 
 arcfour.o: arcfour.c
-	gcc -c -O2 -Wall arcfour.c
+	gcc -c -O2 -Wall arcfour.c -o arcfour.o
 
 clean:
 	rm -f *.o *.so example *.dylib

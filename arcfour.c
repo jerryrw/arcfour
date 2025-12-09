@@ -1,113 +1,109 @@
 #include "arcfour.h"
+#include <stdlib.h>
+#include <string.h>
 
-rc4_ctx *rc4_init(rc4_byte_t *key, size_t size)
-/* Algorythm for the key init function
+/*
+ * RC4 (Rivest Cipher 4) Implementation
+ * Exact implementation from RFC 6229
+ */
 
-for i from 0 to 255
-    S[i] := i
-endfor
-j := 0
-for i from 0 to 255
-    j := (j + S[i] + key[i mod keylength]) mod 256
-    swap values of S[i] and S[j]
-endfor
-*/
+/*
+ * rc4_init - Initialize RC4 context with a key
+ * Key Scheduling Algorithm (KSA)
+ */
+rc4_ctx *rc4_init(rc4_byte_t *key, size_t keylen)
 {
-    rc4_index_t x;
-    rc4_byte_t temp1, temp2;
+    unsigned int i, j;
+    rc4_byte_t temp;
     rc4_ctx *ctx;
-    uint32_t n; // counter for whitewashing
 
-    ctx = malloc(sizeof(rc4_ctx));
+    ctx = (rc4_ctx *)malloc(sizeof(rc4_ctx));
     if (ctx == NULL)
     {
-        assert(errno);
-    };
-
-    // zero out the S box, and other struc vars
-    for (x = 0; x < 256; x++)
-    {
-        ctx->S[x] = 0;
+        return NULL;
     }
-    ctx->i = ctx->j = ctx->k = 0;
-    temp1 = temp2 = 0;
 
-    for (ctx->i = 0; ctx->i < 256; ctx->i++)
+    /* Initialize S-box */
+    for (i = 0; i < 256; i++)
     {
-        ctx->S[ctx->i] = ctx->i;
+        ctx->S[i] = (rc4_byte_t)i;
     }
+
+    /* KSA main loop */
+    j = 0;
+    for (i = 0; i < 256; i++)
+    {
+        j = (j + ctx->S[i] + key[i % keylen]) % 256;
+
+        /* Swap S[i] and S[j] */
+        temp = ctx->S[i];
+        ctx->S[i] = ctx->S[j];
+        ctx->S[j] = temp;
+    }
+
+    /* Initialize PRGA indices */
+    ctx->i = 0;
     ctx->j = 0;
 
-    for (ctx->i = 0; ctx->i < 256; ctx->i++)
-    {
-        // j := (j+S[i]+key[i mod keylength]) mod 256
-        // swap S[i] and S[j]
-        ctx->j = (ctx->j + ctx->S[ctx->i] + key[ctx->i % size]) % 256;
-
-        temp1 = ctx->S[ctx->i];
-        ctx->S[ctx->i] = ctx->S[ctx->j];
-        ctx->S[ctx->j] = temp1;
-    }
-    // prep for the actual encryption function
-    ctx->i = ctx->j = 0;
-    rc4_skip(n, ctx); // throw away the first few bytes of the stream
     return ctx;
 }
 
+/*
+ * rc4_byte - Generate next keystream byte
+ * Pseudo-Random Generation Algorithm (PRGA)
+ */
 rc4_byte_t rc4_byte(rc4_ctx *ctx)
-/* Algorithm for generating the key stream
-
-i := 0
-j := 0
-while GeneratingOutput:
-    i := (i + 1) mod 256
-    j := (j + S[i]) mod 256
-    swap values of S[i] and S[j]
-    t := (S[i] + S[j]) mod 256
-    K := S[t]
-    output K
-endwhile
-*/
-
 {
-    rc4_index_t temp1;
-    rc4_index_t t;
+    rc4_byte_t temp;
+    unsigned int t;
 
+    /* Increment i (with wrapping) */
     ctx->i = (ctx->i + 1) % 256;
+
+    /* Add S[i] to j (with wrapping) */
     ctx->j = (ctx->j + ctx->S[ctx->i]) % 256;
 
-    // swap S[i] and S[j]
-    temp1 = ctx->S[ctx->i];
+    /* Swap S[i] and S[j] */
+    temp = ctx->S[ctx->i];
     ctx->S[ctx->i] = ctx->S[ctx->j];
-    ctx->S[ctx->j] = temp1;
+    ctx->S[ctx->j] = temp;
 
-    // t = (S[i] + S[j]) mod 256
+    /* Generate keystream byte */
     t = (ctx->S[ctx->i] + ctx->S[ctx->j]) % 256;
 
-    // K = S[t]
-    ctx->k = ctx->S[t];
-
-    return ctx->k;
+    return ctx->S[t];
 }
 
-rc4_byte_t *rc4_encrypt(rc4_ctx *ctx, rc4_byte_t *cleartext, size_t size)
-/* The actual encryption
-uses rc4byte to get a byte of key stream and XOR it
-with the cleartext producing a ciphertext byte
-Loops over the entire length of the cleartext
-*/
-
+/*
+ * rc4_encrypt - Encrypt data with RC4
+ */
+rc4_byte_t *rc4_encrypt(rc4_ctx *ctx, rc4_byte_t *plaintext, size_t size)
 {
-    // variables in this function are named for encryption
-    // but the RC4 cipher uses the same function for decryption
+    size_t x;
     rc4_byte_t *ciphertext;
-    rc4_index_t x;
 
     ciphertext = (rc4_byte_t *)malloc(size + 1);
+    if (ciphertext == NULL)
+    {
+        return NULL;
+    }
 
     for (x = 0; x < size; x++)
     {
-        ciphertext[x] = cleartext[x] ^ rc4_byte(ctx);
+        ciphertext[x] = plaintext[x] ^ rc4_byte(ctx);
     }
+
+    ciphertext[size] = '\0';
     return ciphertext;
+}
+
+/*
+ * rc4_free - Free RC4 context
+ */
+void rc4_free(rc4_ctx *ctx)
+{
+    if (ctx != NULL)
+    {
+        free(ctx);
+    }
 }
