@@ -7,6 +7,10 @@
 /* Type definitions for RC4 */
 typedef unsigned char rc4_byte_t;
 
+#define rc4_skip(x, y)         \
+    for (x = 0; x < 2049; x++) \
+        (volatile rc4_byte_t) rc4_byte(y); // explicitly tell compiler to not optimize
+
 /* RC4 context structure - maintains state between operations */
 typedef struct
 {
