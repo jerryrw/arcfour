@@ -45,6 +45,7 @@ rc4_ctx *rc4_init(rc4_byte_t *key, size_t keylen)
     ctx->i = 0;
     ctx->j = 0;
 
+    // this works for use but does not pass one test due to the nature of the test
     // for (int x = 0; x < 2049; x++)
     //     (volatile rc4_byte_t) rc4_byte(ctx); // explicitly tell compiler to not optimize
 

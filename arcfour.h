@@ -7,6 +7,7 @@
 /* Type definitions for RC4 */
 typedef unsigned char rc4_byte_t;
 
+// used to skip the first 2048 bytes of output for statistical purposes
 #define rc4_skip(x, y)         \
     for (x = 0; x < 2049; x++) \
         (volatile rc4_byte_t) rc4_byte(y); // explicitly tell compiler to not optimize
