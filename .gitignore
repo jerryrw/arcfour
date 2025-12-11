@@ -11,7 +11,7 @@
 # Linker output
 *.ilk
 *.map
-*.exp
+#*.exp
 
 # Precompiled Headers
 *.gch
