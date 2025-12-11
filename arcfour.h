@@ -21,6 +21,7 @@ typedef struct
 } rc4_ctx;
 
 /* Function prototypes */
+void print_hex(unsigned char *data, size_t len);
 rc4_ctx *rc4_init(rc4_byte_t *key, size_t size);
 rc4_byte_t rc4_byte(rc4_ctx *ctx);
 rc4_byte_t *rc4_encrypt(rc4_ctx *ctx, rc4_byte_t *plaintext, size_t size);

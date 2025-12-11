@@ -1,6 +1,6 @@
-# RC4 library for MacOS
+# RC4 library for MacOS and Linux
 
-An RC4 encryption dynamic library.
+An RC4 encryption dynamic library for MacOS and Linux.
 
 ## Description
 
@@ -8,12 +8,13 @@ This was witten to explore creating a shared library under Linux and MacOS. The 
 
 ## WARNING
 
-This code is experimental and has not been validated against any other implimentation. Use at your own risk.
+This code is experimental. Use at your own risk.
 
 ## Version History
 
 - 0.1
   - Initial Release
+  - Compiles and passes NIST tests on MacOS Arm and Linux (Ubuntu) x64
 
 ## License
 

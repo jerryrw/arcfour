@@ -1,12 +1,25 @@
 #include "arcfour.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /*
  * RC4 (Rivest Cipher 4) Implementation
  * Exact implementation from RFC 6229
  */
 
+/*
+ * print_hex - prints 8 bit binary data in hex string format
+ * to stdout
+ * */
+void print_hex(unsigned char *data, size_t len)
+{
+    for (size_t i = 0; i < len; i++)
+    {
+        printf("%02x ", data[i]);
+    }
+    printf("\n");
+}
 /*
  * rc4_init - Initialize RC4 context with a key
  * Key Scheduling Algorithm (KSA)
