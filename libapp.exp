@@ -1,4 +1,0 @@
-# Export the following symbols from the shared library
-
-_rc4_init
-_rc4_encrypt
