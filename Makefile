@@ -4,10 +4,11 @@ OS = $(shell uname -s)
 CC = gcc
 CFLAGS = -std=c11 -Wall -O3 -march=native -mtune=native
 
-all: arcfour example
+all: arcfour
 
-example: example.o
+example: example.o arcfour
 	$(CC) $(CFLAGS) example.o -o example -L./ -larcfour -Wl,-rpath,'$$ORIGIN'
+	@./example
 
 example.o: example.c
 	$(CC) $(CFLAGS) -c example.c -o example.o
@@ -41,5 +42,27 @@ else ifeq ($(OS),Darwin)
 	$(CC) $(CFLAGS) -c arcfour.c -o arcfour.o
 endif
 
+memcheck: example test_nist_arcfour
+	@echo "Running memory check (using leaks command for macOS ARM)..."
+	@leaks -atExit -- ./example
+	@leaks -atExit -- ./test_nist_arcfour
+
 clean:
 	rm -f *.o *.so example *.dylib test_nist_arcfour
+
+help:
+	@echo "Arcfour Implementation Makefile"
+	@echo "==============================="
+	@echo ""
+	@echo "Available targets:"
+	@echo "  all        - Build all libraries (default)"
+	@echo "  test       - Build and run test vectors"
+	@echo "  example    - Build and run the example executable"
+	@echo "  clean      - Remove build artifacts"
+	@echo "  memcheck   - Check for memory leaks"
+	@echo "  help       - Show this help message"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make              # Build everything"
+	@echo "  make test         # Run tests"
+	@echo "  make clean        # Clean up"
