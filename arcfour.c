@@ -97,7 +97,7 @@ rc4_byte_t rc4_byte(rc4_ctx *ctx)
 rc4_byte_t *rc4_encrypt(rc4_ctx *ctx, rc4_byte_t *plaintext, size_t size)
 {
     size_t x;
-    rc4_byte_t *ciphertext;
+    rc4_byte_t *ciphertext; // TODO memory leak
 
     ciphertext = (rc4_byte_t *)malloc(size + 1);
     if (ciphertext == NULL)

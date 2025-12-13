@@ -7,7 +7,6 @@ CFLAGS = -std=c11 -Wall -O3 -march=native -mtune=native
 all: arcfour example
 
 example: example.o
-#	gcc example.o -o example -Wall -O2 -L./ -larcfour
 	$(CC) $(CFLAGS) example.o -o example -L./ -larcfour -Wl,-rpath,'$$ORIGIN'
 
 example.o: example.c
@@ -30,7 +29,7 @@ ifeq ($(OS),Linux)
 	$(CC) -D_GNU_SOURCE arcfour.o -o libsha3.so -shared -fPIC -ldl
 else ifeq ($(OS),Darwin)
     # Commands and variables specific to macOS
-	$(CC) -dynamiclib -exported_symbols_list libarcfour.exp arcfour.o -o libarcfour.dylib 
+	$(CC) -dynamiclib -exported_symbols_list symbols/libarcfour.exp arcfour.o -o libarcfour.dylib 
 endif
 
 arcfour.o: arcfour.c

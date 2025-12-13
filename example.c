@@ -13,9 +13,10 @@ int main(void)
     rc4_byte_t *key, *plaintext, *encrypted, *decrypted;
 
     // zero out the pointers to initial values stops compiler warnings
+    // different types need to be initialized seperately
     key = plaintext = encrypted = decrypted = 0;
-    plaintext = key;
     keysize = textsize = 0;
+    ctx = 0;
 
     // set up the key
     key = (rc4_byte_t *)"tomatoes";
@@ -26,37 +27,39 @@ int main(void)
     textsize = strlen((char *)plaintext);
 
     printf("Initializing encryption...");
-    FLUSH;
+    rc4_free(ctx); // need this before any init to stop memory leak
+    ctx = NULL;
     ctx = rc4_init(key, keysize); // sets up the context with the key
-    printf("done\n");
-    FLUSH
-    printf("Plaintext ->");
-    FLUSH;
-    printf("'%s'\n", plaintext);
+    printf("done\nPlaintext ->'%s'\n", plaintext);
 
     printf("Encrypting...");
-    FLUSH;
     encrypted = rc4_encrypt(ctx, plaintext, textsize); // the actual encryption call
     printf("done\nCiphertext->");
-    FLUSH;
     print_hex(encrypted, textsize);
 
     printf("Initializing decryption...");
-    FLUSH;
+    rc4_free(ctx); // need this before any init to stop memory leak
+    ctx = NULL;
     ctx = rc4_init(key, keysize); // re-initialize the context for decryption
     printf("done\n");
 
     printf("Decrypting...");
-    FLUSH;
     decrypted = rc4_encrypt(ctx, encrypted, textsize);
-    printf("done\nPlaintext->");
-    printf("'%s'\n", decrypted);
+    printf("done\nPlaintext->'%s'\n", decrypted);
+    rc4_free(ctx); // need this before any init to stop memory leak
+    ctx = NULL;
+    // use at the end of this oeration helps ensure that
+    // next init call does not get a mamory leak
+    free(encrypted);
+    free(decrypted);
 
-    // generate a random number
+    // generate a random number (just keystream data)
     size_t num_bytes = 256;
     rc4_byte_t *random_buffer;
     random_buffer = (rc4_byte_t *)malloc(num_bytes * sizeof(rc4_byte_t));
     key = (rc4_byte_t *)"hello";
+    rc4_free(ctx); // need this before any init to stop memory leak
+    ctx = NULL;
     ctx = rc4_init(key, strlen((const char *)key));
     for (int i = 0; i < num_bytes; i++)
     {
@@ -66,5 +69,9 @@ int main(void)
     print_hex(random_buffer, num_bytes);
     memset(random_buffer, 0, num_bytes); // zero the buffer
     free(random_buffer);
+    rc4_free(ctx); // need this before any init to stop memory leak
+    ctx = NULL;
+    // use at the end of this oeration helps ensure that
+    // next init call does not get a mamory leak
     return 0;
 }
