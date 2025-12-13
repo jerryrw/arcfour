@@ -124,3 +124,52 @@ void rc4_free(rc4_ctx *ctx)
         free(ctx);
     }
 }
+
+int rc4_encrypt_file(const char *inpath, const char *outpath, rc4_byte_t *key, size_t keylen)
+{
+    FILE *in = NULL, *out = NULL;
+    rc4_ctx *ctx = NULL;
+    unsigned char buf[4096];
+    size_t n;
+
+    if (inpath == NULL || outpath == NULL || key == NULL || keylen == 0)
+        return -1;
+
+    in = fopen(inpath, "rb");
+    if (in == NULL)
+        return -1;
+
+    out = fopen(outpath, "wb");
+    if (out == NULL)
+    {
+        fclose(in);
+        return -1;
+    }
+
+    ctx = rc4_init(key, keylen);
+    if (ctx == NULL)
+    {
+        fclose(in);
+        fclose(out);
+        return -1;
+    }
+
+    while ((n = fread(buf, 1, sizeof(buf), in)) > 0)
+    {
+        for (size_t i = 0; i < n; i++)
+            buf[i] ^= rc4_byte(ctx);
+
+        if (fwrite(buf, 1, n, out) != n)
+        {
+            rc4_free(ctx);
+            fclose(in);
+            fclose(out);
+            return -1;
+        }
+    }
+
+    rc4_free(ctx);
+    fclose(in);
+    fclose(out);
+    return 0;
+}

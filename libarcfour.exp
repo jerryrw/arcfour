@@ -5,3 +5,4 @@ _rc4_encrypt
 _rc4_byte
 _rc4_free
 _print_hex
+_rc4_encrypt_file
