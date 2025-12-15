@@ -27,7 +27,7 @@ test_nist_arcfour.o: test_nist_arcfour.c
 arcfour:  arcfour.o
 ifeq ($(OS),Linux)
     # Commands and variables specific to Linux
-	$(CC) -D_GNU_SOURCE arcfour.o -o libsha3.so -shared -fPIC -ldl
+	$(CC) -D_GNU_SOURCE arcfour.o -o libarcfour.so -shared -fPIC -ldl
 else ifeq ($(OS),Darwin)
     # Commands and variables specific to macOS
 	$(CC) -dynamiclib -exported_symbols_list symbols/libarcfour.exp arcfour.o -o libarcfour.dylib 
