@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// test git
 /* Type definitions for RC4 */
 typedef unsigned char rc4_byte_t;
 
