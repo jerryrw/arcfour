@@ -1,77 +1,77 @@
-
+/**
+ * @brief Main function demonstrating RC4 usage for encryption and decryption.
+ *
+ * This example demonstrates the full lifecycle: key setup -> initialization ->
+ * encryption -> re-initialization -> decryption -> random data generation.
+ * Note the explicit calls to rc4_free() after each context use to prevent
+ * memory leaks, which is critical in resource management for this library.
+ */
 #include "arcfour.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
-#define FLUSH fflush(stdout);
+int main(void) {
+  rc4_ctx* ctx;
+  size_t keysize, textsize;
+  rc4_byte_t *key, *plaintext, *encrypted, *decrypted;
 
-int main(void)
-{
-    rc4_ctx *ctx;
-    size_t keysize, textsize;
-    rc4_byte_t *key, *plaintext, *encrypted, *decrypted;
+  // Initialize pointers and variables to NULL/zero to suppress compiler
+  // warnings.
+  key = plaintext = encrypted = decrypted = 0;
+  keysize = textsize = 0;
+  ctx = NULL;
 
-    // zero out the pointers to initial values stops compiler warnings
-    // different types need to be initialized seperately
-    key = plaintext = encrypted = decrypted = 0;
-    keysize = textsize = 0;
-    ctx = 0;
+  // --- Step 1: Setup Key and Context ---
+  key = (rc4_byte_t*)"tomatoes";
+  keysize = strlen((char*)key);
 
-    // set up the key
-    key = (rc4_byte_t *)"tomatoes";
-    keysize = strlen((char *)key);
+  printf("Initializing encryption...");
+  // Must free any existing context before creating a new one.
+  if (ctx != NULL) rc4_free(ctx);
+  ctx = rc4_init(key, keysize);  // Sets up the context state using the KSA.
+  printf("done\nPlaintext ->'%s'\n", plaintext);
 
-    // set up sample plaintext input
-    plaintext = (rc4_byte_t *)"Shall I compare thee to a summer's day?";
-    textsize = strlen((char *)plaintext);
+  // --- Step 2: Encryption ---
+  printf("Encrypting...");
+  encrypted =
+      rc4_encrypt(ctx, plaintext,
+                  textsize);  // Generates keystream and XORs it with plaintext.
+  printf("done\nCiphertext->");
+  print_hex(encrypted, textsize);
 
-    printf("Initializing encryption...");
-    rc4_free(ctx); // need this before any init to stop memory leak
-    ctx = NULL;
-    ctx = rc4_init(key, keysize); // sets up the context with the key
-    printf("done\nPlaintext ->'%s'\n", plaintext);
+  // --- Step 3: Decryption (Symmetric Property Check) ---
+  printf("\nInitializing decryption...");
+  if (ctx != NULL) rc4_free(ctx);  // Free old context.
+  ctx = rc4_init(
+      key, keysize);  // Re-initialize the context state for the second pass.
+  printf("done\n");
 
-    printf("Encrypting...");
-    encrypted = rc4_encrypt(ctx, plaintext, textsize); // the actual encryption call
-    printf("done\nCiphertext->");
-    print_hex(encrypted, textsize);
+  printf("Decrypting...");
+  // Decryption is mathematically identical to encryption in RC4 (XOR property).
+  decrypted = rc4_encrypt(ctx, encrypted, textsize);
+  printf("done\nPlaintext->'%s'\n", decrypted);
+  rc4_free(ctx);  // Clean up context.
 
-    printf("Initializing decryption...");
-    rc4_free(ctx); // need this before any init to stop memory leak
-    ctx = NULL;
-    ctx = rc4_init(key, keysize); // re-initialize the context for decryption
-    printf("done\n");
+  // --- Step 4: Random Data Generation (Testing state persistence) ---
+  size_t num_bytes = 256;
+  rc4_byte_t* random_buffer;
 
-    printf("Decrypting...");
-    decrypted = rc4_encrypt(ctx, encrypted, textsize);
-    printf("done\nPlaintext->'%s'\n", decrypted);
-    rc4_free(ctx); // need this before any init to stop memory leak
-    ctx = NULL;
-    // use at the end of this oeration helps ensure that
-    // next init call does not get a mamory leak
-    free(encrypted);
-    free(decrypted);
+  // Use a simple key to generate random-like data for testing purposes.
+  key = (rc4_byte_t*)"hello";
+  if (ctx != NULL) rc4_free(ctx);  // Clean up previous context.
+  ctx = rc4_init(key, strlen((const char*)key));
 
-    // generate a random number (just keystream data)
-    size_t num_bytes = 256;
-    rc4_byte_t *random_buffer;
-    random_buffer = (rc4_byte_t *)malloc(num_bytes * sizeof(rc4_byte_t));
-    key = (rc4_byte_t *)"hello";
-    rc4_free(ctx); // need this before any init to stop memory leak
-    ctx = NULL;
-    ctx = rc4_init(key, strlen((const char *)key));
-    for (int i = 0; i < num_bytes; i++)
-    {
-        random_buffer[i] = rc4_byte(ctx);
-    }
-    printf("Random Data from key->");
-    print_hex(random_buffer, num_bytes);
-    memset(random_buffer, 0, num_bytes); // zero the buffer
-    free(random_buffer);
-    rc4_free(ctx); // need this before any init to stop memory leak
-    ctx = NULL;
-    // use at the end of this oeration helps ensure that
-    // next init call does not get a mamory leak
-    return 0;
+  random_buffer = (rc4_byte_t*)malloc(num_bytes * sizeof(rc4_byte_t));
+  for (int i = 0; i < num_bytes; i++) {
+    // Each call generates a new byte, advancing the internal state of 'ctx'.
+    random_buffer[i] = rc4_byte(ctx);
+  }
+  printf("Random Data from key->");
+  print_hex(random_buffer, num_bytes);
+
+  // Cleanup resources
+  rc4_free(ctx);  // Final context cleanup.
+  free(encrypted);
+  free(decrypted);
+  free(random_buffer);
+
+  return 0;
 }
