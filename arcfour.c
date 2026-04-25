@@ -37,12 +37,16 @@ rc4_ctx *rc4_init(rc4_byte_t *key, size_t keylen)
     }
 
     /* Initialize S-box */
+    /* Initialize S-box */
     for (i = 0; i < 256; i++)
     {
         ctx->S[i] = (rc4_byte_t)i;
     }
 
-    /* KSA main loop */
+    /* KSA main loop - Key Scheduling Algorithm */
+    // The key is mixed into the S-box by swapping elements based on the key bytes.
+    // This process ensures that the initial state of the cipher depends entirely on the secret key,
+    // which is crucial for cryptographic security.
     j = 0;
     for (i = 0; i < 256; i++)
     {
@@ -75,17 +79,22 @@ rc4_byte_t rc4_byte(rc4_ctx *ctx)
     unsigned int t;
 
     /* Increment i (with wrapping) */
+    // i moves sequentially to ensure all S-box elements are involved in the permutation cycle.
     ctx->i = (ctx->i + 1) % 256;
 
     /* Add S[i] to j (with wrapping) */
+    // The index j is updated based on the current value of S[i], mixing the state further.
     ctx->j = (ctx->j + ctx->S[ctx->i]) % 256;
 
     /* Swap S[i] and S[j] */
+    // Swapping ensures that the elements S[i] and S[j] are updated based on the current state,
+    // which is the core mechanism of the RC4 keystream generation.
     temp = ctx->S[ctx->i];
     ctx->S[ctx->i] = ctx->S[ctx->j];
     ctx->S[ctx->j] = temp;
 
     /* Generate keystream byte */
+    // The keystream value is derived by summing the two swapped indices and taking modulo 256.
     t = (ctx->S[ctx->i] + ctx->S[ctx->j]) % 256;
 
     return ctx->S[t];
